@@ -220,6 +220,10 @@ pub fn main() !u8 {
             print("    {s}Memory:{s} {}\n", .{ COLOR_START, COLOR_STOP, std.fmt.fmtIntSizeBin(maxrss * 1024) });
             return c;
         },
+        .Stopped => |c| {
+            print("{s}Terminated with stop{s} {d} ({s})\n", .{ COLOR_START, COLOR_STOP, c, if (c == 0) "OK" else "NOK" });
+            return 1;
+        },
         else => return 42,
     }
 }
