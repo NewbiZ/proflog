@@ -152,7 +152,11 @@ fn logSubprocess(subprocess: *std.process.Child, stacktraceDir: []const u8, allo
         }
 
         if (elapsedSince(stacktraceTime) >= POLL_STACKTRACE) {
-            if (stacktraceAvailable) {
+            if (stacktraceAvailable) blk: {
+                std.fs.cwd().access(stacktraceFile, .{}) catch {
+                    stacktraceAvailable = false;
+                    break :blk;
+                };
                 stacktraceTime = std.time.milliTimestamp();
                 try std.posix.kill(subprocess.id, std.os.linux.SIG.USR1);
             } else blk: {
@@ -207,11 +211,8 @@ pub fn main() !u8 {
 
     switch (try subprocess.wait()) {
         .Signal => |s| {
-            if (s != 10) {
-                print("{s}Terminated by signal{s} {d}\n", .{ COLOR_START, COLOR_STOP, s });
-                return 128 + @as(u8, @intCast(s));
-            }
-            return 0;
+            print("{s}Terminated by signal{s} {d}\n", .{ COLOR_START, COLOR_STOP, s });
+            return 128 + @as(u8, @intCast(s));
         },
         .Exited => |c| {
             print("{s}Terminated with code{s} {d} ({s})\n", .{ COLOR_START, COLOR_STOP, c, if (c == 0) "OK" else "NOK" });

@@ -41,7 +41,7 @@ def consolidate_multiline(file: str, lineno: int) -> str:
                 return lines[original_lineno]
             line = line + lines[lineno].split("#")[0].strip()
         return line
-    except:  # noqa
+    except Exception:  # noqa
         return "<unknown>"
 
 
@@ -72,7 +72,7 @@ def dump_stacktrace(signal, frame):
             file=STACKTRACE_FILE,
             flush=True,
         )
-    except:  # noqa
+    except Exception:  # noqa
         ...
 
 
